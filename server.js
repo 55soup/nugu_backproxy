@@ -23,13 +23,9 @@ exports.nugu_template = (req, res) => {
   const appTitle = '로또마스터'; // 앱 타이틀을 적어주세요
 
   const requestBody = req.body; //request의 body부분
-  let parameters = requestBody.action;
-  //일반 접속시 일반 텍스트 리턴
-	if(!requestBody.hasOwnProperty('action')){
-      return res.send('Sic enim Deus dilexit mundum, ut Filium suum unigenitum daret: ut omnis qui credit in eum, non pereat, sed habeat vitam æternam.')
-       }
+  let parameters = '';
 
-  if(parameters.hasOwnProperty('parameters')){
+  if(requestBody.action.hasOwnProperty('parameters')){
     if(Object.keys(requestBody.action.parameters).length === 0){
       parameters = ''
     }else{
@@ -47,59 +43,68 @@ exports.nugu_template = (req, res) => {
   //디버그 용, actionName을 표시합니다
   console.log(`request: ${JSON.stringify(actionName)}`);
 
-  //response json 필드. 여기서 json을 만들어준다.
-  function makeJson(jsons) {
-      let jsonReturn = {
-        "version": "2.0",
-        "resultCode": "OK",
-        "directives": {
-          "AudioPlayer": {
-            "type": "AudioPlayer.Play",
-            "audioItem": {
-              "stream": {
-                "url": "",
-                "offsetInMilliseconds": "",
-                "progressReport": {
-                  "progressReportDelayInMilliseconds": "",
-                  "progressReportIntervalInMilliseconds": ""
-                },
-                "token": "",
-                "expectedPreviousToken": ""
-              },
-              "metadata": {}
-          }
+let output = {};
+
+//response json 필드. 여기서 json을 만들어준다.
+function makeJson(jsons) {
+  /**
+   * [makeJson 설명]
+   * @json {jsons}
+   * 안에는 누구로 보낼 json들이 있습니다
+   * json안에는 파라메터들이 있으며, 각 파라메터는 sk nugu의 play에서 지정한
+   * 이름과 동일해야 합니다.
+   */
+  let jsonReturn = {
+    "version": "2.0",
+    "resultCode": "OK",
+    "directives": {
+      "AudioPlayer": {
+        "type": "AudioPlayer.Play",
+        "audioitems": {
+          "stream": {
+            "url": "",
+            "offsetInMilliseconds": "",
+            "progressReport": {
+              "progressReportDelayInMilliseconds": "",
+              "progressReportIntervalInMilliseconds": ""
+            },
+            "token": "",
+            "expectedPreviousToken": ""
+          },
+          "metadata": {}
         }
       }
-      jsonReturn.output = jsons;
-      return jsonReturn;
     }
 
+  }
+  jsonReturn.output = jsons
+  return jsonReturn;
+} //makeJson
 
-    /**
-     * [answername 설명]
-     * @answername : json으로 보낼 파라메터 이름을 지정합니다.
-     * 여기서는 answername으로 합니다.
-     */
-    // intent
-    function action_intent(httpRes) {
-      let speechText = '';
-      let output = {};
 
-      output.answername = speechText;
-      return res.send(makeJson(output));
-    } //function
+  /**
+   * [answername 설명]
+   * @answername : json으로 보낼 파라메터 이름을 지정합니다.
+   * 여기서는 answername으로 합니다.
+   */
+  // intent
+  function action_intent(httpRes) {
+    let speechText = '';
 
-    //액션 선언 모음, 여기서 액션을 선언해 줍니다.
-    const ACTION_TEMPLATE = 'ACTION.template';
+    output.answername = speechText;
+    return res.send(makeJson(output));
+  } //function
 
-    // Intent가 오는 부분, actionName으로 구분합니다.
-    switch (actionName) {
-      // 최초 실행시 오는 intent. LaunchRequest만 쓴다.
-      case ACTION_TEMPLATE:
-        return action_intent(res)
-        //INTENT_REQUEST의 경우 하위 function에서 switch로 intent를 처리합니다.
+  //액션 선언 모음, 여기서 액션을 선언해 줍니다.
+  const ACTION_TEMPLATE = 'ACTION.template';
 
-    }
+  // Intent가 오는 부분, actionName으로 구분합니다.
+  switch (actionName) {
+    // 최초 실행시 오는 intent. LaunchRequest만 쓴다.
+    case ACTION_TEMPLATE:
+      return action_intent(res)
+      //INTENT_REQUEST의 경우 하위 function에서 switch로 intent를 처리합니다.
+
   }
 
   function recommend_fuc() {
@@ -128,7 +133,7 @@ exports.nugu_template = (req, res) => {
   function recipe_fuc(){
 
   }
-
+  
   switch(actionName){
     case ACTION_RECOMMEND:
       return recommend_fuc()
@@ -138,3 +143,5 @@ exports.nugu_template = (req, res) => {
       break;
   }
 }
+
+
