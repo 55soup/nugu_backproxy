@@ -20,7 +20,7 @@ app.use(express.json())
  */
 
 exports.nugu_template = (req, res) => {
-  const appTitle = '로또마스터'; // 앱 타이틀을 적어주세요
+  const appTitle = '아침결'; // 앱 타이틀을 적어주세요
 
   const requestBody = req.body; //request의 body부분
   let parameters = '';
@@ -33,7 +33,6 @@ exports.nugu_template = (req, res) => {
     }
   }
 
-  const context = requestBody.action.context; //컨텍스트, OAuth연결시 토큰이 들어옵니다
   const actionName = requestBody.action.actionName; // action의 이름
   console.log('requestBody ', JSON.stringify(requestBody));
 
@@ -133,6 +132,8 @@ function makeJson(jsons) {
   function recipe_fuc(){
 
   }
+
+  const ACTION_RECOMMEND = 'action.recommend'; //현재회차 로또
   
   switch(actionName){
     case ACTION_RECOMMEND:
